@@ -1,0 +1,43 @@
+openapi: 3.0.0
+info:
+  title: Recipe Search API
+  version: 1.0.0
+  description: API for searching recipes with specific time constraints.
+paths:
+  /search-recipes:
+    get:
+      summary: Search for recipes in the knowledge base.
+      description: Retrieves recipes based on query text and optional time filters.
+      operationId: searchRecipes
+      parameters:
+        - name: max_prep_time
+          in: query
+          description: Maximum preparation time in minutes.
+          required: false
+          schema:
+            type: integer
+        - name: max_cook_time
+          in: query
+          description: Maximum cook time in minutes.
+          required: false
+          schema:
+            type: integer
+        - name: max_total_time
+          in: query
+          description: Maximum total time (prep + cook) in minutes.
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful retrieval of recipes.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  TEXT:
+                    type: object
+                    properties:
+                      body:
+                        type: string
