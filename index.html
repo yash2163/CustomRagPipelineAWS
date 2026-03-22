@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Recipe AI Assistant</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; padding: 20px; }
+        #chat-container { width: 100%; max-width: 500px; background: white; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow: hidden; display: flex; flex-direction: column; height: 80vh; }
+        #messages { flex: 1; padding: 20px; overflow-y: auto; border-bottom: 1px solid #eee; }
+        .msg { margin-bottom: 15px; padding: 10px; border-radius: 8px; line-height: 1.5; }
+        .user { background: #007bff; color: white; align-self: flex-end; margin-left: 20%; }
+        .bot { background: #e9ecef; color: #333; margin-right: 20%; }
+        #input-area { padding: 15px; display: flex; gap: 10px; }
+        input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        button { padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div id="chat-container">
+    <div id="messages" id="messageDisplay"></div>
+    <div id="input-area">
+        <input type="text" id="userInput" placeholder="Ask for a recipe...">
+        <button onclick="sendChat()">Send</button>
+    </div>
+</div>
+
+<script>
+    let session = "web-session-" + Math.random().toString(36).substring(7);
+    const API_URL = "https://nal9momuo2.execute-api.ap-south-1.amazonaws.com/chat";
+
+    async function sendChat() {
+        const input = document.getElementById('userInput');
+        const display = document.getElementById('messages');
+        const text = input.value;
+        if (!text) return;
+
+        // Show User Message
+        display.innerHTML += `<div class="msg user">${text}</div>`;
+        input.value = "";
+
+        try {
+            const response = await fetch(API_URL, {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({ message: text, sessionId: session })
+            });
+
+            const data = await response.json();
+            // Critical Friend Note: If 'data' is already the object, use data.answer. 
+            // If it's a string, use JSON.parse(data.body).
+            const botResponse = data.answer || JSON.parse(data.body).answer;
+
+            display.innerHTML += `<div class="msg bot">${botResponse}</div>`;
+            display.scrollTop = display.scrollHeight;
+        } catch (e) {
+            display.innerHTML += `<div class="msg bot" style="color:red">Error: ${e.message}</div>`;
+        }
+    }
+</script>
+</body>
+</html>
